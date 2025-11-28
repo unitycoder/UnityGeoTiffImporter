@@ -5,7 +5,7 @@ Import GEOTIFF files and Create Terrains from it.
 Tested with Maanmittauslaitos 2m GeoTiff files: https://asiointi.maanmittauslaitos.fi/karttapaikka/tiedostopalvelu/korkeusmalli
 
 ### Features
-- Reads metadata from geotiff (pixel size in meters)
+- Reads metadata from geotiff (pixel size in meters and tile size)
 
 ### Usage
 - Install this plugin files into your project (TODO add UPM support)
