@@ -1,6 +1,7 @@
 // https://github.com/unitycoder/UnityGeoTiffImporter
 
 using System;
+using System.Globalization;
 using System.IO;
 using UnityEngine;
 using UnityEditor.AssetImporters;
@@ -146,6 +147,11 @@ namespace UnityLibrary.Importers
                 ctx.AddObjectToAsset("Heightmap", tex);
                 ctx.SetMainObject(tex);
 
+                // ---------------------------------------------------------------------
+                // Extra GeoTIFF metadata
+                // ---------------------------------------------------------------------
+
+                // 1) Pixel size (ModelPixelScaleTag 33550)
                 double pixelSizeX = 1.0;
                 double pixelSizeY = 1.0;
 
@@ -153,21 +159,112 @@ namespace UnityLibrary.Importers
                 if (scaleField != null && scaleField.Length >= 2)
                 {
                     double[] scales = scaleField[1].ToDoubleArray();
-                    if (scales.Length >= 2)
+                    if (scales != null && scales.Length >= 2)
                     {
                         pixelSizeX = scales[0];
                         pixelSizeY = scales[1];
                     }
                 }
 
-                // store min/max as a sub-asset
+                // 2) Origin (ModelTiepointTag 33922)
+                double originX = 0.0;
+                double originY = 0.0;
+
+                FieldValue[] tieField = tif.GetField((TiffTag)33922); // ModelTiepointTag
+                if (tieField != null && tieField.Length >= 2)
+                {
+                    double[] tiepoints = tieField[1].ToDoubleArray();
+                    // tiepoints come in groups of 6: rasterX, rasterY, rasterZ, modelX, modelY, modelZ
+                    if (tiepoints != null && tiepoints.Length >= 6)
+                    {
+                        originX = tiepoints[3];
+                        originY = tiepoints[4];
+                    }
+                }
+
+                // 3) Map bounds (assuming north-up, origin at upper-left)
+                double minX = originX;
+                double maxX = originX + pixelSizeX * width;
+                double maxY = originY;
+                double minY = originY - pixelSizeY * height;
+
+                // 4) EPSG code from GeoKeyDirectoryTag (34735)
+                int epsgCode = 0;
+                FieldValue[] geoKeyDirField = tif.GetField((TiffTag)34735); // GeoKeyDirectoryTag
+                if (geoKeyDirField != null && geoKeyDirField.Length >= 2)
+                {
+                    short[] keyDir = geoKeyDirField[1].ToShortArray();
+                    if (keyDir != null && keyDir.Length >= 4)
+                    {
+                        int keyCount = keyDir[3];
+                        int offset = 4;
+                        for (int i = 0; i < keyCount; i++)
+                        {
+                            if (offset + 3 >= keyDir.Length)
+                                break;
+
+                            ushort keyId = (ushort)keyDir[offset + 0];
+                            ushort tiffTagLocation = (ushort)keyDir[offset + 1];
+                            ushort count = (ushort)keyDir[offset + 2];
+                            ushort valueOffset = (ushort)keyDir[offset + 3];
+
+                            // ProjectedCSTypeGeoKey
+                            if (keyId == 3072)
+                            {
+                                epsgCode = valueOffset; // EPSG code
+                                break;
+                            }
+
+                            offset += 4;
+                        }
+                    }
+                }
+
+                // 5) NoData value from GDAL_NODATA tag (42113)
+                bool hasNoData = false;
+                float noDataValue = 0f;
+
+                FieldValue[] noDataField = tif.GetField((TiffTag)42113);
+                if (noDataField != null && noDataField.Length >= 2)
+                {
+                    string noDataStr = noDataField[1].ToString();
+                    if (!string.IsNullOrEmpty(noDataStr) &&
+                        float.TryParse(noDataStr, NumberStyles.Float,
+                            CultureInfo.InvariantCulture, out float parsed))
+                    {
+                        hasNoData = true;
+                        noDataValue = parsed;
+                    }
+                }
+
+                // ---------------------------------------------------------------------
+                // Store metadata as a sub-asset
+                // ---------------------------------------------------------------------
+
                 var meta = ScriptableObject.CreateInstance<HeightmapMeta>();
-                meta.minHeight = (float)min;
-                meta.maxHeight = (float)max;
+                meta.minHeight = min;
+                meta.maxHeight = max;
+
+                meta.rasterWidth = width;
+                meta.rasterHeight = height;
+
                 meta.pixelSizeX = (float)pixelSizeX;
                 meta.pixelSizeY = (float)pixelSizeY;
-                ctx.AddObjectToAsset("Meta", meta);
 
+                meta.originX = (float)originX;
+                meta.originY = (float)originY;
+
+                meta.minX = (float)minX;
+                meta.maxX = (float)maxX;
+                meta.minY = (float)minY;
+                meta.maxY = (float)maxY;
+
+                meta.epsgCode = epsgCode;
+
+                meta.hasNoData = hasNoData;
+                meta.noDataValue = noDataValue;
+
+                ctx.AddObjectToAsset("Meta", meta);
             }
         }
 
@@ -286,5 +383,4 @@ namespace UnityLibrary.Importers
             }
         }
     }
-
 }
