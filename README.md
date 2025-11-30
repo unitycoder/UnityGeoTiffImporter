@@ -19,6 +19,8 @@ Tested with Maanmittauslaitos 2m GeoTiff files: https://asiointi.maanmittauslait
 ### Images
 <img width="1111" height="879" alt="image" src="https://github.com/user-attachments/assets/b1545588-a4bd-4add-a5ac-50a708df1489" />
 <img width="923" height="565" alt="image" src="https://github.com/user-attachments/assets/8c746425-44df-4533-84d1-db0288022601" />
+<img width="2560" height="1400" alt="image" src="https://github.com/user-attachments/assets/a43b1eb9-a7e7-49e9-b8e9-4d6e74c16740" />
+
 
 ### External Licenses
 - libtiff.net : https://github.com/BitMiracle/libtiff.net?tab=License-1-ov-file#readme
