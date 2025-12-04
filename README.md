@@ -17,7 +17,7 @@ Tested with Maanmittauslaitos 2m GeoTiff files: https://asiointi.maanmittauslait
 - You can use .jp2 converter to get ortho images as png/jpg/tiff https://github.com/unitycoder/JP2Converter
 
 ### Images
-<img width="1111" height="879" alt="image" src="https://github.com/user-attachments/assets/b1545588-a4bd-4add-a5ac-50a708df1489" />
+<img width="1215" height="819" alt="image" src="https://github.com/user-attachments/assets/41d38cf2-11eb-461d-905a-2cc2205b2caf" />
 <img width="923" height="565" alt="image" src="https://github.com/user-attachments/assets/8c746425-44df-4533-84d1-db0288022601" />
 <img width="2560" height="1400" alt="image" src="https://github.com/user-attachments/assets/a43b1eb9-a7e7-49e9-b8e9-4d6e74c16740" />
 
