@@ -1,3 +1,5 @@
+<img src="https://img.shields.io/badge/VibeCoded-100%25-green" alt="AI Generated Content"/>
+
 # Unity GeoTiff Importer
 
 Import GEOTIFF files and Create Terrains from it.
