@@ -11,7 +11,7 @@ Tested with Maanmittauslaitos 2m GeoTiff files: https://asiointi.maanmittauslait
 
 ### Usage
 - Install this plugin files into your project (TODO add UPM support)
-- Rename your .tif files into .geotif or .geotiff (because Unity already imports .tiff files internall)
+- Rename your .tif files into .geotif or .geotiff (because Unity already imports .tiff files)
 - Copy your *.geotif files into Unity Project
 - Your geotiff files should now appear as imported files
 
